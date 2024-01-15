@@ -18,5 +18,6 @@ class TrafficLightViewController: UIViewController {
     override func viewDidLoad() {
         view.backgroundColor = .lightGray
         super.viewDidLoad()
+        
     }
 }

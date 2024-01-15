@@ -9,8 +9,21 @@ import UIKit
 
 class TrafficLightView: UIView {
     
-    var state = TrafficLightState.intermitent
+    var state = TrafficLightState.intermittent
+    var timer = Timer()
     
+    @IBAction func segmentedControlState(_ sender: UISegmentedControl) {
+        print("Segmented control value changed")
+        
+    }
+    
+    let segmentedControl: UISegmentedControl = {
+        let segmentedControl = UISegmentedControl()
+        segmentedControl.backgroundColor = .white
+        segmentedControl.translatesAutoresizingMaskIntoConstraints = false
+        return segmentedControl
+    }()
+        
     let trafficLight: UIView = {
         let innerView = UIView(frame: CGRect(x: 20, y: 20, width: 160, height: 160))
         innerView.backgroundColor = .darkGray
@@ -39,6 +52,7 @@ class TrafficLightView: UIView {
         return greenView
     }()
   
+    
     
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -71,7 +85,17 @@ class TrafficLightView: UIView {
         trafficLight.addSubview(redLight)
         trafficLight.addSubview(yellowLight)
         trafficLight.addSubview(greenLight)
+        trafficLight.addSubview(segmentedControl)
         let distanceBetweenLights = 25.0
+        
+        segmentedControl.insertSegment(withTitle: "Red", at: 0, animated: false)
+        segmentedControl.insertSegment(withTitle: "Yellow", at: 1, animated: false)
+        segmentedControl.insertSegment(withTitle: "Green", at: 2, animated: false)
+        segmentedControl.insertSegment(withTitle: "Intermittent", at: 3, animated: false)
+        segmentedControl.isUserInteractionEnabled = true
+        
+        segmentedControl.addTarget(self, action: #selector(segmentedControlValueChanged(_:)), for: .valueChanged)
+
         
         NSLayoutConstraint.activate([
             
@@ -95,15 +119,39 @@ class TrafficLightView: UIView {
             greenLight.widthAnchor.constraint(equalToConstant: lightSide),
             greenLight.heightAnchor.constraint(equalToConstant: lightSide),
             
+            segmentedControl.topAnchor.constraint(equalTo: trafficLight.bottomAnchor, constant: 60),
+            segmentedControl.centerXAnchor.constraint(equalTo: self.centerXAnchor)
+
+            
         ])
         
         setNeedsLayout()
         
-    } 
+    }
     
-    func updateColors() {
+    @objc func segmentedControlValueChanged(_ sender: UISegmentedControl) {
+        let selectedIndex = sender.selectedSegmentIndex
+        
+        switch selectedIndex {
+        case 0:
+            state = .red
+        case 1:
+            state = .yellow
+        case 2:
+            state = .green
+        case 3:
+            state = .intermittent
+        default:
+            break
+        }
+        
+        updateColors()
+    }
+    
+    @objc func updateColors() {
         
         switch state {
+            
         case TrafficLightState.red:
             redLight.backgroundColor = .red
             yellowLight.backgroundColor = .black
@@ -119,11 +167,16 @@ class TrafficLightView: UIView {
             yellowLight.backgroundColor = .black
             greenLight.backgroundColor = .green
             
-        case .intermitent:
+        case .intermittent:
             redLight.backgroundColor = .black
             greenLight.backgroundColor = .black
-            intermitentLight()
+            intermittentLight()
         }
+        
+        if self.state != TrafficLightState.intermittent {
+            timer.invalidate()
+        }
+        
     }
     
     required init?(coder: NSCoder) {
@@ -131,11 +184,12 @@ class TrafficLightView: UIView {
     }
     
     
-    func intermitentLight() {
-        var timer = Timer()
-        timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { timer in
-            self.pisk()
+    func intermittentLight() {
+        
+        timer = Timer.scheduledTimer(withTimeInterval: 0.7, repeats: true) { timer in
+        self.pisk()
         }
+        
     }
     
     func pisk() {
@@ -148,10 +202,12 @@ class TrafficLightView: UIView {
         }
     }
     
+    
+    
 }
     
     enum TrafficLightState {
-        case red, yellow, green, intermitent
+        case red, yellow, green, intermittent
     }
     
 
