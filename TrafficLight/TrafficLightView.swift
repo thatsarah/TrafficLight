@@ -17,13 +17,41 @@ class TrafficLightView: UIView {
         
     }
     
-    let segmentedControl: UISegmentedControl = {
-        let segmentedControl = UISegmentedControl()
-        segmentedControl.backgroundColor = .white
-        segmentedControl.translatesAutoresizingMaskIntoConstraints = false
-        return segmentedControl
+    let redButton: UIButton = {
+        let redButton = UIButton()
+        redButton.backgroundColor = .red
+        redButton.setTitle("Red", for: .normal)
+        redButton.translatesAutoresizingMaskIntoConstraints = false
+        return redButton
+        
     }()
         
+    let yellowButton: UIButton = {
+        let yellowButton = UIButton()
+        yellowButton.backgroundColor = .yellow
+        yellowButton.setTitle("Yellow", for: .normal)
+        yellowButton.translatesAutoresizingMaskIntoConstraints = false
+        return yellowButton
+    }()
+    
+    let greenButton: UIButton = {
+        let greenButton = UIButton()
+        greenButton.backgroundColor = .green
+        greenButton.setTitle("Green", for: .normal)
+        greenButton.translatesAutoresizingMaskIntoConstraints = false
+        return greenButton
+    }()
+    
+    let intermittentButton: UIButton = {
+        let intermittentButton = UIButton()
+        intermittentButton.backgroundColor = .black
+        intermittentButton.setTitleColor(.yellow, for: .normal)
+        intermittentButton.setTitle("Intermittent", for: .normal)
+        intermittentButton.translatesAutoresizingMaskIntoConstraints = false
+        return intermittentButton
+        
+    }()
+    
     let trafficLight: UIView = {
         let innerView = UIView(frame: CGRect(x: 20, y: 20, width: 160, height: 160))
         innerView.backgroundColor = .darkGray
@@ -75,27 +103,25 @@ class TrafficLightView: UIView {
         super.init(frame: CGRectZero)
         addViews()
         updateColors()
+        
+        redButton.addTarget(self, action: #selector(stateChanged), for: .touchUpInside)
+        
     }
     
     let lightSide = 90.0
-    
+    let buttonHeight = 35.0
     
     func addViews() {
         addSubview(trafficLight)
         trafficLight.addSubview(redLight)
         trafficLight.addSubview(yellowLight)
         trafficLight.addSubview(greenLight)
-        trafficLight.addSubview(segmentedControl)
+        trafficLight.addSubview(redButton)
+        trafficLight.addSubview(yellowButton)
+        trafficLight.addSubview(greenButton)
+        trafficLight.addSubview(intermittentButton)
+        
         let distanceBetweenLights = 25.0
-        
-        segmentedControl.insertSegment(withTitle: "Red", at: 0, animated: false)
-        segmentedControl.insertSegment(withTitle: "Yellow", at: 1, animated: false)
-        segmentedControl.insertSegment(withTitle: "Green", at: 2, animated: false)
-        segmentedControl.insertSegment(withTitle: "Intermittent", at: 3, animated: false)
-        segmentedControl.isUserInteractionEnabled = true
-        
-        segmentedControl.addTarget(self, action: #selector(segmentedControlValueChanged(_:)), for: .valueChanged)
-
         
         NSLayoutConstraint.activate([
             
@@ -119,31 +145,38 @@ class TrafficLightView: UIView {
             greenLight.widthAnchor.constraint(equalToConstant: lightSide),
             greenLight.heightAnchor.constraint(equalToConstant: lightSide),
             
-            segmentedControl.topAnchor.constraint(equalTo: trafficLight.bottomAnchor, constant: 60),
-            segmentedControl.centerXAnchor.constraint(equalTo: self.centerXAnchor)
-
+            redButton.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 8),
+            redButton.topAnchor.constraint(equalTo: trafficLight.bottomAnchor, constant: 15),
+            redButton.widthAnchor.constraint(equalToConstant: lightSide),
+            redButton.heightAnchor.constraint(equalToConstant: buttonHeight),
             
+            yellowButton.leadingAnchor.constraint(equalTo: redButton.trailingAnchor, constant: 5),
+            yellowButton.topAnchor.constraint(equalTo: trafficLight.bottomAnchor, constant: 15),
+            yellowButton.widthAnchor.constraint(equalToConstant: lightSide),
+            yellowButton.heightAnchor.constraint(equalToConstant: buttonHeight),
+
+            greenButton.leadingAnchor.constraint(equalTo: yellowButton.trailingAnchor, constant: 5),
+            greenButton.topAnchor.constraint(equalTo: trafficLight.bottomAnchor, constant: 15),
+            greenButton.widthAnchor.constraint(equalToConstant: lightSide),
+            greenButton.heightAnchor.constraint(equalToConstant: buttonHeight),
+            
+            intermittentButton.leadingAnchor.constraint(equalTo: greenButton.trailingAnchor, constant: 5),
+            intermittentButton.topAnchor.constraint(equalTo: trafficLight.bottomAnchor, constant: 15),
+            intermittentButton.widthAnchor.constraint(equalToConstant: lightSide),
+            intermittentButton.heightAnchor.constraint(equalToConstant: buttonHeight),
         ])
         
         setNeedsLayout()
         
     }
     
-    @objc func segmentedControlValueChanged(_ sender: UISegmentedControl) {
-        let selectedIndex = sender.selectedSegmentIndex
-        
-        switch selectedIndex {
-        case 0:
-            state = .red
-        case 1:
-            state = .yellow
-        case 2:
-            state = .green
-        case 3:
-            state = .intermittent
-        default:
-            break
+    @objc func stateChanged(_ sender: UIButton) {
+     
+        if sender == redButton {
+            self.state = .red
         }
+        
+        print("ta vermelho")
         
         updateColors()
     }
